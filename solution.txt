@@ -1,0 +1,73 @@
+﻿1. 
+create table students(
+StudentID int primary key,
+Name nvarchar(50),
+Gender char(1),
+address nvarchar(200)
+)
+create table Classes(
+ClassID int primary key,
+GroupID char(6),
+courseID char(6),
+Nocredits int,
+semester char(10),
+year int,
+TeacherID int references Teachers(TeacherID)
+)
+create table Attend(
+Date date,
+Slot int,
+attend bit,
+classID int references Classes(classid),
+studentid int references Classes(studentid )
+primary key(classID, studentID)
+)
+2. 
+select * from customer
+where Segment = 'Consumer'
+and City = 'Arlington'
+3. 
+select c.*
+from Customer c join Orders o
+on c.id = o.CustomerID
+where CustomerName like 'B%' and 
+month(o.orderdate) = 12 and year(o.orderdate) = 2017
+order by c.Segment desc,c.CustomerName asc
+4. 
+select s.ID, s.SubCategoryName, count(p.id) as 
+NumberOfProduct
+from SubCategory s join Product p
+on s.ID = p.SubCategoryID
+group by s.ID, s.SubCategoryName, p.SubCategoryID
+having count(p.id) > 100
+order by count(p.id) desc
+5. 
+select p.id, p.ProductName, o.quantity
+from Product p join OrderDetails o
+on p.ID = o.ProductID
+where o.Quantity = 
+(select max(quantity)
+from OrderDetails)
+6. 
+select c.ID,c.CustomerName, count(o.id) as number
+from Customer c join Orders o
+on c.ID = o.CustomerID
+group by c.ID,c.CustomerName, o.CustomerID
+having count(o.id)
+= 
+(select max(total) as total1
+from 
+(select count(id) total
+from orders
+group by CustomerID) as rs)
+7. 
+select t.ID, t.ProductName, t.UnitPrice, t.SubCategoryID
+from (
+    select 
+        t.*,
+        rank() over(order by UnitPrice desc) r_low,
+        rank() over(order by UnitPrice asc) r_high
+    from product t
+) t
+where r_high <= 5 or r_low <= 5
+order by r_high desc, r_low desc
